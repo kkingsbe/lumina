@@ -1,4 +1,4 @@
-import { OpenAIApi, Configuration } from "openai";
+import OpenAI from "openai";
 import path from "path";
 import { LocalIndex } from "vectra";
 import { v4 as uuidv4 } from "uuid";
@@ -6,11 +6,7 @@ import { DBWrapper } from "../dbmanager";
 import fs from "fs"
 import { Moc } from "../moc";
 
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY
-})
-
-const openai = new OpenAIApi(configuration)
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
 const index = new LocalIndex(path.join(__dirname, "..", "", "lumina_knowledge/vector_index"))
 
@@ -88,12 +84,12 @@ export class Document {
      * @returns
      */
     private async embed(): Promise<number[]> {
-        const response = await openai.createEmbedding({
+        const response = await openai.embeddings.create({
             model: 'text-embedding-ada-002',
             input: this.content
         })
 
-        return response.data.data[0].embedding
+        return response.data[0].embedding
     }
 
     async storeEmbedding() {
