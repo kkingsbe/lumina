@@ -6,7 +6,11 @@ import { Result, Ok, Err } from "ts-results-es";
 import { sanitizeQuery } from "../utils";
 
 export class SearchEngine {
-    constructor() {}
+    folderName: string
+
+    constructor(folderName: string) {
+        this.folderName = folderName
+    }
 
     /**
      * Searches for documents and MOCs by title.
@@ -117,8 +121,8 @@ export class SearchEngine {
         const convertedResults: (Document | Moc)[] = [];
         for (const result of results) {
             if (result.type === 'moc') {
-                const mocResult = await Moc.read(result.name);
-                convertedResults.push(mocResult);
+                const mocResult = await Moc.read(result.name, this.folderName);
+                convertedResults.push(mocResult.unwrap());
             } else {
                 const documentResult = await Document.read(result.id);
                 convertedResults.push(documentResult);

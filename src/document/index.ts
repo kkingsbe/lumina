@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { DBWrapper } from "../dbmanager";
 import fs from "fs"
 import { Moc } from "../moc";
+import { Option } from "ts-results-es";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
@@ -112,6 +113,6 @@ export class Document {
 
     async getMocs(): Promise<Moc[]> {
         const mocIds = await DBWrapper.getMocIdsForDocument(this.id)
-        return Promise.all(mocIds.map((mocId: string) => Moc.read(mocId, this.documentsPath)))
+        return Promise.all(mocIds.map((mocId: string) => Moc.read(mocId, this.documentsPath))).then((mocs: Option<Moc>[]) => mocs.filter(moc => moc.isSome()).map(moc => moc.unwrap()))
     }
 }

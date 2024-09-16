@@ -225,6 +225,23 @@ export class DBWrapper {
         }
     }
 
+    static async getMocById(id: string, folderName: string): Promise<Option<Moc>> {
+        const mocData = await DocumentModel.findOne({
+            where: { id: id, type: 'moc' },
+            attributes: ['id', 'name']
+        });
+
+        if (!mocData) {
+            return None
+        }
+
+        const moc = await Moc.read(mocData.name, folderName);
+        if (moc.isSome()) {
+            return Some(moc.unwrap());
+        }
+        return None;
+    }
+
     /**
      * Searches for documents based on the provided options.
      * @param {FindOptions<DocumentModel>} options - The search criteria and options for querying documents.

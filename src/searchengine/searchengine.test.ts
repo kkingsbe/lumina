@@ -8,13 +8,13 @@ import fs from 'fs';
 const tempFolderName = 'lumina_knowledge_test'
 
 describe('SearchEngine', () => {
-    let manager: DBManager;
+  let manager: DBManager;
   let searchEngine: SearchEngine;
 
   beforeEach(async () => {
     manager = new DBManager(path.join(tempFolderName, 'db', 'test_lumina.db'));
     await manager.initialize();
-    searchEngine = new SearchEngine();
+    searchEngine = new SearchEngine(tempFolderName);
   });
 
   describe('searchByTitle', () => {

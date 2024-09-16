@@ -3,6 +3,7 @@ import fs from "fs"
 import { v4 as uuidv4 } from "uuid";
 import { Document } from "../document";
 import { DBWrapper } from "../dbmanager";
+import { Option, None, Some } from "ts-results-es";
 
 export class Moc {
     id: string;
@@ -55,10 +56,10 @@ export class Moc {
         }
     }
 
-    static async read(name: string, folderName: string = "lumina_knowledge") {
+    static async read(name: string, folderName: string): Promise<Option<Moc>> {
         const mocDataRes = await DBWrapper.getMocByName(name);
         if (mocDataRes.isNone()) {
-            throw new Error(`MOC with name '${name}' not found`);
+            return None;
         }
 
         console.log("MOC data:", mocDataRes.unwrap());
@@ -66,11 +67,30 @@ export class Moc {
         const mocData = mocDataRes.unwrap();
         const moc = new Moc(mocData.name, folderName);
         moc.id = mocData.id;
+        
+        try {
+            moc.documents = await DBWrapper.getDocumentIdsForMoc(mocData.id);
+            console.log("Documents in MOC:", moc.documents);
+            return Some(moc);
+        } catch (error) {
+            console.error(`Failed to get document IDs for MOC: ${error}`);
+            return None;
+        }
+    }
+
+    static async readById(id: string, folderName: string): Promise<Option<Moc>> {
+        const mocDataRes = await DBWrapper.getMocById(id, folderName);
+        if (mocDataRes.isNone()) {
+            return None;
+        }
+
+        const mocData = mocDataRes.unwrap();
+        const moc = new Moc(mocData.name, folderName);
+    
+        moc.id = mocData.id;
         moc.documents = await DBWrapper.getDocumentIdsForMoc(mocData.id);
-
         console.log("Documents in MOC:", moc.documents);
-
-        return moc;
+        return Some(moc);
     }
 
     async save() {
