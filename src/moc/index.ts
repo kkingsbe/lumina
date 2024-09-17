@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Document } from "../document";
 import { DBWrapper } from "../dbmanager";
 import { Option, None, Some } from "ts-results-es";
+import { EmbeddingManager } from "../embeddingmanager";
 
 export class Moc {
     id: string;
@@ -33,18 +34,17 @@ export class Moc {
         return this.id;
     }
 
-    async addDocument(document: Document) {
+    async addDocument(document: Document | Moc) {
         try {
             await document.save(); // Ensure the document is saved first
             await this.save(); // Ensure the MOC is saved or updated
             if (!this.documents.includes(document.getId())) {
                 this.documents.push(document.getId());
 
-                console.log(`Adding document with id ${document.getId()} to MOC with id ${this.id}`);
                 await DBWrapper.addToMoc(this.id, document.getId());
-                console.log("Document added to MOC:", document.getId());
-                const tempFiles = await DBWrapper.getDocumentIdsForMoc(this.id);
-                console.log("Documents in MOC:", tempFiles);
+                const updatedDocuments = await DBWrapper.getDocumentIdsForMoc(this.id);
+                this.documents = updatedDocuments;
+                await this.save();
             }
         } catch (error) {
             console.error("Error adding document to MOC:", error);
@@ -62,7 +62,7 @@ export class Moc {
             return None;
         }
 
-        console.log("MOC data:", mocDataRes.unwrap());
+        // console.log("MOC data:", mocDataRes.unwrap());
 
         const mocData = mocDataRes.unwrap();
         const moc = new Moc(mocData.name, folderName);
@@ -70,7 +70,7 @@ export class Moc {
         
         try {
             moc.documents = await DBWrapper.getDocumentIdsForMoc(mocData.id);
-            console.log("Documents in MOC:", moc.documents);
+            // console.log("Documents in MOC:", moc.documents);
             return Some(moc);
         } catch (error) {
             console.error(`Failed to get document IDs for MOC: ${error}`);
@@ -89,9 +89,22 @@ export class Moc {
     
         moc.id = mocData.id;
         moc.documents = await DBWrapper.getDocumentIdsForMoc(mocData.id);
-        console.log("Documents in MOC:", moc.documents);
+        // console.log("Documents in MOC:", moc.documents);
         return Some(moc);
     }
+
+    /**
+     * Generates an embedding for the MOCs name (title)
+     * @returns
+     */
+    private async embed(): Promise<number[]> {
+        return EmbeddingManager.generateEmbedding(this.name);
+    }
+
+    async storeEmbedding() {
+        await EmbeddingManager.storeEmbedding(this.id, await this.embed(), { title: this.name, type: "moc" });
+    }
+    
 
     async save() {
         const mocFilePath = path.join(this.mocsPath, `${this.id}.json`);
@@ -100,5 +113,8 @@ export class Moc {
             documents: this.documents
         }, null, 2));
         await DBWrapper.saveMoc(this);
+
+        await this.storeEmbedding()
     }
 }
+

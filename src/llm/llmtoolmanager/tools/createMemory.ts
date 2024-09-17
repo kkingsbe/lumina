@@ -67,7 +67,7 @@ export class CreateMemoryTool implements Tool<z.infer<typeof CreateMemoryInputSc
     async invoke(inputData: z.infer<typeof CreateMemoryInputSchema>, context: LuminaSkillContext): Promise<Result<z.infer<typeof CreateMemoryResponseSchema>, string>> {
         try {
             // Check if the provided MOC exists
-            console.log("Creating memory with MOC id:", inputData.moc_id)
+            // console.log("Creating memory with MOC id:", inputData.moc_id)
             const mocResult = await Moc.readById(inputData.moc_id, context.folderName)
             if (mocResult.isNone()) {
                 return Err(`Unable to find MOC with id ${inputData.moc_id}`);
@@ -83,6 +83,7 @@ export class CreateMemoryTool implements Tool<z.infer<typeof CreateMemoryInputSc
 
             // Add the document to the MOC
             await moc.addDocument(document)
+            await moc.save()
 
             return Ok({ document_id: document.getId() })
         } catch (error) {

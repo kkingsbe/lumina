@@ -2,6 +2,7 @@ import { Result, Ok, Err } from 'ts-results-es';
 import { z } from 'zod';
 import { LuminaSkillContext } from '../../../luminaskillcontext';
 import { FieldDescription, Tool } from '..';
+import { Moc } from '../../../moc';
 
 const MocSearchInputSchema = z.object({
     query: z.string()
@@ -49,7 +50,7 @@ export class MocSearchTool implements Tool<z.infer<typeof MocSearchInputSchema>,
             if (searchResults.isErr()) {
                 return Err(searchResults.error.message);
             }
-            const mocIds = searchResults.unwrap().map(result => result.getId());
+            const mocIds = searchResults.unwrap().filter(result => result instanceof Moc).map(result => result.getId());
 
             return Ok({ moc_ids: mocIds });
         } catch (error) {

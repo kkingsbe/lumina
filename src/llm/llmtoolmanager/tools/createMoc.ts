@@ -9,7 +9,8 @@ import { LuminaSkillContext } from "../../../luminaskillcontext";
 import { Moc } from "../../../moc";
 
 const CreateMocInputSchema = z.object({
-    title: z.string()
+    title: z.string(),
+    parent_moc_id: z.string()
 });
 
 const CreateMocResponseSchema = z.object({
@@ -21,6 +22,11 @@ const inputSchemaFieldDescriptions: FieldDescription[] = [
         name: "title",
         type: "string",
         description: "The title of the Map of Contents (MOC) to be created"
+    },
+    {
+        name: "parent_moc_id",
+        type: "string",
+        description: "The id of the parent MOC to link this MOC to"
     }
 ];
 
@@ -53,6 +59,16 @@ export class CreateMocTool implements Tool<z.infer<typeof CreateMocInputSchema>,
             }
             const moc = new Moc(inputData.title, context.folderName);
             await moc.save();
+
+            // Read the parent MOC
+            console.log("Reading parent MOC with id: ", inputData.parent_moc_id);
+            const parentMoc = await Moc.readById(inputData.parent_moc_id, context.folderName);
+            if (!parentMoc || parentMoc.isNone()) {
+                return Err(`Parent MOC with id ${inputData.parent_moc_id} not found`);
+            }
+
+            // Add the new MOC to the parent MOC and save it
+            await parentMoc.unwrap().addDocument(moc);
 
             return Ok({ moc_id: moc.getId() });
         } catch (error) {

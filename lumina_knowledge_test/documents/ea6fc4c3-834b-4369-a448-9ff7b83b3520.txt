@@ -1,0 +1,6 @@
+1. Define Injector Types: Research different injector designs used in rocket engines (e.g., pintle, showerhead, swirl injectors) to determine the most suitable one for the project.
+2. Material Selection: Identify appropriate materials that can withstand the extreme temperatures and pressures within a rocket engine.
+3. Calculate Injector Dimensions: Determine the injector's dimensions based on flow rates, fuel type, and combustion chamber requirements.
+4. Design Considerations: Assess pressure drops, flow rates, injection angles, and other factors influencing performance.
+5. Verification Calculations: Perform calculations to verify the injector design's performance and efficiency, such as mass flow rate, pressure drop, and combustion efficiency.
+6. Document Findings: Compile research findings into a clear and structured format.

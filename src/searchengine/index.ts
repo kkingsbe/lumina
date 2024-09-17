@@ -4,12 +4,14 @@ import { DBWrapper } from "../dbmanager";
 import { Op } from "sequelize";
 import { Result, Ok, Err } from "ts-results-es";
 import { sanitizeQuery } from "../utils";
+import { EmbeddingManager } from "../embeddingmanager";
 
 export class SearchEngine {
     folderName: string
 
     constructor(folderName: string) {
         this.folderName = folderName
+        EmbeddingManager.init(folderName);
     }
 
     /**
@@ -45,7 +47,7 @@ export class SearchEngine {
      * @param {number} offset - The number of results to skip for pagination.
      * @returns {Promise<Result<Document[], Error>>} A Result containing an array of Documents whose content matches the query, or an Error.
      */
-    async searchByContent(query: string, limit: number = 10, offset: number = 0): Promise<Result<Document[], Error>> {
+    async searchByContent(query: string, limit: number = 10, offset: number = 0): Promise<Result<(Document | Moc)[], Error>> {
         if (!query.trim()) {
             return Err(new Error("Search query cannot be empty"));
         }
@@ -114,6 +116,42 @@ export class SearchEngine {
             return Ok(uniqueResults);
         } catch (error) {
             return Err(new Error(`Error in searchAll: ${error}`));
+        }
+    }
+
+    /**
+     * Performs a contextual search using vector embeddings.
+     * @param {string} query - The search query string.
+     * @param {number} limit - The maximum number of results to return.
+     * @returns {Promise<Result<(Document | Moc)[], Error>>} A Result containing an array of Documents and MOCs most relevant to the query, or an Error.
+     */
+    async contextualSearch(query: string, limit: number = 5): Promise<Result<(Document | Moc)[], Error>> {
+        if (!query.trim()) {
+            return Err(new Error("Search query cannot be empty"));
+        }
+
+        try {
+            const searchResults = await EmbeddingManager.searchEmbeddings(query, limit);
+            const relevantItems: (Document | Moc)[] = [];
+
+            console.log("Search results:", searchResults)
+
+            for (const result of searchResults) {
+                if (result.metadata.type === "document") {
+                    const document = await Document.read(result.metadata.id);
+                    relevantItems.push(document);
+                } else if (result.metadata.type === "moc") {
+                    const mocResult = await Moc.read(result.metadata.title, this.folderName);
+                    if (mocResult.isSome()) {
+                        relevantItems.push(mocResult.unwrap());
+                    }
+                }
+            }
+
+            console.log("Relevant items:", relevantItems)
+            return Ok(relevantItems);
+        } catch (error) {
+            return Err(new Error(`Error in contextualSearch: ${error}`));
         }
     }
 

@@ -131,7 +131,7 @@ export class DBWrapper {
                 file_location: document.filePath,
                 creation_timestamp: Date.now()
             });
-            console.log("Document saved successfully");
+            // console.log("Document saved successfully");
         } catch (error) {
             console.error("Error saving document:", error);
             throw error;
@@ -152,12 +152,12 @@ export class DBWrapper {
 
     static async getDocumentIdsForMoc(mocId: string): Promise<string[]> {
         try {
-            console.log("Getting document IDs for MOC with id:", mocId);
+            // console.log("Getting document IDs for MOC with id:", mocId);
             const mocFiles = await MocFileModel.findAll({
                 where: { moc_id: mocId },
                 attributes: ['document_id']
             });
-            console.log("Moc files:", mocFiles);
+            // console.log("Moc files:", mocFiles);
             return mocFiles.map(file => file.document_id);
         } catch (error) {
             console.error("Error getting document IDs for MOC:", error);
@@ -166,7 +166,7 @@ export class DBWrapper {
     }
 
     static async saveMoc(moc: Moc): Promise<void> {
-        console.log("Saving MOC:", moc)
+        // console.log("Saving MOC:", moc)
         try {
             await DocumentModel.upsert({
                 id: moc.id,
@@ -202,7 +202,7 @@ export class DBWrapper {
 
     static async getDocumentsByTitle(title: string): Promise<Document[]> {
         try {
-            console.log("Searching for documents with title:", title);
+            // console.log("Searching for documents with title:", title);
             const documentModels = await DocumentModel.findAll({
                 where: {
                     name: {
@@ -212,7 +212,7 @@ export class DBWrapper {
                 },
                 attributes: ['name', 'file_location']
             });
-            console.log(`Found ${documentModels.length} documents matching title:`, title);
+            // console.log(`Found ${documentModels.length} documents matching title:`, title);
             
             const documents = await Promise.all(documentModels.map(async (model) => {
                 return await Document.read(model.id);
@@ -250,7 +250,7 @@ export class DBWrapper {
      */
     static async searchDocuments(options: FindOptions<DocumentModel>): Promise<DocumentModel[]> {
         try {
-            console.log("Searching for documents with options:", options);
+            // console.log("Searching for documents with options:", options);
             
             // Replace ILIKE with case-insensitive LIKE
             if (options.where && typeof options.where === 'object' && 'name' in options.where) {
@@ -268,7 +268,7 @@ export class DBWrapper {
             }
             
             const documents = await DocumentModel.findAll(options);
-            console.log(`Found ${documents.length} documents matching search criteria`);
+            // console.log(`Found ${documents.length} documents matching search criteria`);
             return documents;
         } catch (error) {
             console.error("Error searching for documents:", error);
@@ -278,7 +278,7 @@ export class DBWrapper {
 
     static async getDocumentsByTitleOrContent(query: string): Promise<Document[]> {
         try {
-            console.log("Searching for documents with query:", query);
+            // console.log("Searching for documents with query:", query);
             const documentModels = await DocumentModel.findAll({
                 where: {
                     type: 'memory'
@@ -302,7 +302,7 @@ export class DBWrapper {
             }));
 
             const filteredDocuments = matchingDocuments.filter(doc => doc !== null) as Document[];
-            console.log(`Found ${filteredDocuments.length} documents matching query:`, query);
+            // console.log(`Found ${filteredDocuments.length} documents matching query:`, query);
             return filteredDocuments;
         } catch (error) {
             console.error("Error searching for documents by title or content:", error);

@@ -1,0 +1,29 @@
+### 1. Injector Type
+- **Type**: Pintle Injector
+- **Description**: A pintle injector allows for effective mixing and stable combustion, ideal for applications requiring safe throttling. 
+
+### 2. Material Selection
+- **Primary Material**: Inconel 718 (for high strength and oxidation resistance)
+- **Alternative Materials**: Titanium alloys (for reduced weight), Ceramic composites (for high-temperature applications)
+
+### 3. Dimensions
+- **Combustion Chamber Diameter**: 0.5 m 
+- **Injector Diameter**: 0.02 m 
+- **Length of Injector**: 0.1 m 
+- **Flow Rate**: Based on required thrust and operational parameters, assume a flow rate of 0.1 kg/s.
+
+### 4. Design Considerations
+- **Injection Angle**: 15 degrees to optimize mixing within the combustion chamber.
+- **Pressure Drop**: Maintain pressure drop below 10% of inlet pressure to ensure efficient flow. 
+
+### 5. Verification Calculations
+- **Mass Flow Rate Calculation**:
+   - From previous findings, the flow rate is determined using the equation \( \dot{m} = \rho \cdot A \cdot v \) and assume 
+   - Density (\( \rho \)) of RP-1: 820 kg/m³
+   - Area (\( A \)): \( \pi \cdot (0.01 m)^2 \approx 3.14 x 10^{-4} m^2 \)
+   - Assumed velocity (\( v \)): 10 m/s 
+   - \( \dot{m} \approx 820 kg/m^3 \cdot 3.14 x 10^{-4} m^2 \cdot 10 m/s \approx 2.57 kg/s \)
+   - Further calculations would refine the design according to desired thrust parameters.
+
+### 6. Conclusion
+The injector design thus proposed incorporates robust materials and dimensions suitable for high-performance applications, ensuring stable operation and efficient combustion performance.

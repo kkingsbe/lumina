@@ -1,15 +1,10 @@
-import OpenAI from "openai";
 import path from "path";
-import { LocalIndex } from "vectra";
 import { v4 as uuidv4 } from "uuid";
 import { DBWrapper } from "../dbmanager";
 import fs from "fs"
 import { Moc } from "../moc";
 import { Option } from "ts-results-es";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
-
-const index = new LocalIndex(path.join(__dirname, "..", "", "lumina_knowledge/vector_index"))
+import { EmbeddingManager } from "../embeddingmanager";
 
 export class Document {
     private id: string;
@@ -26,10 +21,10 @@ export class Document {
         this.filePath = path.join(this.documentsPath, `${this.id}.txt`);
 
         if (!fs.existsSync(this.documentsPath)) {
-            console.log("Creating documents directory:", this.documentsPath);
+            // console.log("Creating documents directory:", this.documentsPath);
             fs.mkdirSync(this.documentsPath, { recursive: true });
         } else {
-            console.log("Documents directory already exists:", this.documentsPath);
+            // console.log("Documents directory already exists:", this.documentsPath);
         }
     }
 
@@ -66,6 +61,8 @@ export class Document {
             title: this.title,
             filePath: this.filePath
         });
+
+        await this.storeEmbedding()
     }
 
     getTitle(): string {
@@ -81,30 +78,16 @@ export class Document {
     }
 
     /**
-     * Generates an embedding for the document
+     * Generates an embedding for the documents title and content
      * @returns
      */
     private async embed(): Promise<number[]> {
-        const response = await openai.embeddings.create({
-            model: 'text-embedding-ada-002',
-            input: this.content
-        })
-
-        return response.data[0].embedding
+        return await EmbeddingManager.generateEmbedding(this.title + " " + this.content)
     }
 
     async storeEmbedding() {
-        if (!await index.isIndexCreated()) {
-            await index.createIndex()
-        }
-
-        await index.insertItem({
-            vector: await this.embed(),
-            metadata: {
-                title: this.title,
-                filePath: this.filePath
-            }
-        });
+        console.log(this.id)
+        await EmbeddingManager.storeEmbedding(this.id, await this.embed(), { title: this.title, filePath: this.filePath, id: this.id, type: "document" })
     }
 
     async addToMoc(mocId: string) {
