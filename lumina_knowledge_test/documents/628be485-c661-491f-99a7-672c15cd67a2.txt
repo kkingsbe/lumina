@@ -1,7 +1,0 @@
-1. **Injector Types**: The pintle injector is a preferred choice due to its ability to mix propellants effectively and maintain a stable combustion process. It is suitable for applications requiring fast and safe throttling and helps mitigate combustion instabilities.
-2. **Material Selection**: Common materials include nickel-based superalloys (e.g., Inconel), titanium alloys, and ceramics, which can withstand high temperatures and corrosive propellants. 
-3. **Injector Dimensions**: Flow rates depend on the propellant type and desired mass flow rate into the combustion chamber. Dimensions are influenced by the combustion chamber size and operating pressures.
-4. **Design Considerations**: Assess pressure drops and injection angles to ensure efficient mixing and combustion.
-5. **Verification Calculations**: 
-   - Mass Flow Rate Calculation: \( \dot{m} = \rho \cdot A \cdot v \) where \( \dot{m} \) is the mass flow rate, \( \rho \) is the fuel density, \( A \) is the cross-sectional area of the injector, and \( v \) is the velocity of the propellant. 
-   - Assess combustion efficiency to evaluate the injector's performance.
